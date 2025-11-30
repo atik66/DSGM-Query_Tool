@@ -2050,11 +2050,11 @@ function generateBearBQuery(pp, oo=null, queryType, version1, version2=null, dat
   let fromClause = "";
   console.log(datasetType);
   if(datasetType === "hourly") {
-    fromClause = "FROM <FROM <http://bike-csecu/hourly>";
+    fromClause = "FROM  <http://bike-csecu/hourly>";
   } else if(datasetType === "daily") {
     fromClause = "FROM <http://bike-csecu/daily>";
   } else if(datasetType === "instant") {
-    fromClause = "FROM <FROM <http://bike-csecu/instant>";
+    fromClause = "FROM <http://bike-csecu/instant>";
   }
 
   if(queryType === "vm") {
@@ -2251,35 +2251,6 @@ function displaySelectedQuery(){
 
 // ---------- Execute Query ----------
 
-async function executeQuery() {
-  const query = document.getElementById("selectedQueryText").value;
-  document.getElementById("loader").style.display = "block";
-  document.getElementById("resultsContainer").innerHTML = "";
-  const startTime = performance.now();
-
-  try {
-    const response = await fetch("/execute-query", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query })
-    });
-    const data = await response.json();
-    document.getElementById("loader").style.display = "none";
-    const endTime = performance.now();
-    document.getElementById("executionTime").textContent = `Execution Time: ${(endTime - startTime).toFixed(2)} ms`;
-
-    renderResults(data.results.bindings);
-  } catch (err) {
-    document.getElementById("loader").style.display = "none";
-    document.getElementById("resultsContainer").textContent = "Error executing query";
-    console.error(err);
-  }
-}
-
-
-
-
-
 
 
 let currentData = [];
@@ -2296,7 +2267,7 @@ async function executeQuery() {
   const startTime = performance.now();
 
   try {
-    const response = await fetch("/execute-query", {
+    const response = await fetch("api/execute-query", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query })
