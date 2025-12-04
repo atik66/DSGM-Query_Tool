@@ -2107,6 +2107,54 @@ function generateBearBQuery(pp, oo=null, queryType, version1, version2=null, dat
     fromClause = "FROM <http://bike-csecu/instant>";
   }
 
+ if (datasetType === "instant"){
+if(queryType === "vm") {
+    return `
+PREFIX owl: <http://www.w3.org/2002/07/owl/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?s ?o ${fromClause} WHERE {
+  ?s ${pp} ?c1.
+  ${oo ? `?c1 owl:valueAs ${oo}.` : "?c1 owl:valueAs ?o."}
+  ?c1 owl:timeinfo ?time.
+  ?time owl:fromdate ?fromdate; owl:todate ?todate.
+  FILTER((xsd:integer(?fromdate) <= ${version1}) && (xsd:integer(?todate) >= ${version1}))
+}`;
+  } 
+  else if(queryType === "dm") {
+    return `
+PREFIX owl: <http://www.w3.org/2002/07/owl/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT (COUNT(*) AS ?count) ${fromClause} WHERE {
+  ?s ${pp} ?c1.
+  ${oo ? `?c1 owl:valueAs ${oo}.` : "?c1 owl:valueAs ?o."}
+  {
+    ?c1 owl:timeinfo ?timeC1.
+    ?timeC1 owl:fromdate ?fromC1; owl:todate ?toC1.
+    FILTER(xsd:integer(?fromC1) <= ${version1} && xsd:integer(?toC1) >= ${version1})
+  }
+  FILTER NOT EXISTS {
+    ?c1 owl:timeinfo ?timeC1_2.
+    ?timeC1_2 owl:fromdate ?fromC1_2; owl:todate ?toC1_2.
+    FILTER(xsd:integer(?fromC1_2) <= ${version2} && xsd:integer(?toC1_2) >= ${version2})
+  }
+}`;
+  } 
+  else if(queryType === "vq") {
+    return `
+PREFIX owl: <http://www.w3.org/2002/07/owl/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT (COUNT(*) AS ?count) ${fromClause} WHERE {
+  ?s ${pp} ?c1.
+  ${oo ? `?c1 owl:valueAs ${oo}.` : "?c1 owl:valueAs ?o."}
+  ?c1 owl:timeinfo ?time.
+  ?time owl:fromdate ?fromdate; owl:todate ?todate.
+}`;
+  }
+
+ }
+
+
+else{
   if(queryType === "vm") {
     return `
 PREFIX owl: <http://www.w3.org/2002/07/owl/>
@@ -2152,6 +2200,7 @@ SELECT (COUNT(*) AS ?count) ${fromClause} WHERE {
   ?time bike:fromdate ?fromdate; bike:todate ?todate.
 }`;
   }
+}
 }
 
 
